@@ -88,7 +88,7 @@ function proximity(root, { radius = 240, gain = .45, lift = .1, idle = .3, color
         target = smooth(clamp(1 - d / radius));
       }
       if (!RM) target = Math.max(target, (Math.sin(t * 1.5 - i * .6) * .5 + .5) * idle);
-      c.v += (target - c.v) * .14;
+      c.v += (target - c.v) * .06;
       c.el.style.transform = `translateY(${(-c.v * lift).toFixed(3)}em) scale(${(1 + c.v * gain).toFixed(3)})`;
       if (color) c.el.style.color = rgb(mix(base, color, clamp(c.v * 1.4)));
     });
@@ -103,9 +103,9 @@ if (FINE && !RM) {
       const r = el.getBoundingClientRect();
       const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
       const dx = e.clientX - cx, dy = e.clientY - cy;
-      const near = Math.abs(dx) < r.width / 2 + 50 && Math.abs(dy) < r.height / 2 + 50;
-      if (near) { el.style.transition = "transform .25s var(--ease)"; el.style.transform = `translate(${dx * .28}px,${dy * .4}px)`; el.dataset.m = 1; }
-      else if (el.dataset.m) { el.style.transition = "transform .7s var(--spring)"; el.style.transform = ""; delete el.dataset.m; }
+      const near = Math.abs(dx) < r.width / 2 + 24 && Math.abs(dy) < r.height / 2 + 24;
+      if (near) { el.style.transition = "transform .7s var(--ease)"; el.style.transform = `translate(${(dx * .1).toFixed(1)}px,${(dy * .14).toFixed(1)}px)`; el.dataset.m = 1; }
+      else if (el.dataset.m) { el.style.transition = "transform 1s var(--ease)"; el.style.transform = ""; delete el.dataset.m; }
     });
   }, { passive: true });
 }
@@ -134,11 +134,11 @@ if (FINE && !RM) {
   let W = 0, H = 0;
   // Each ribbon = one spring-driven head + a history of where it's been.
   // The tail samples that history, so it always flows along the head's real (curvy) path.
-  const N = 44, STRIDE = 3;
+  const N = 48, STRIDE = 6;   // slow heads → sample the history more sparsely so tails stay long
   const R = [
-    { k: .075, d: .86, hue: 34, w: 9,   a: 1 },
-    { k: .06,  d: .88, hue: 18, w: 6.5, a: .8 },
-    { k: .05,  d: .90, hue: 352, w: 5,  a: .6 },
+    { k: .028, d: .91, hue: 34, w: 7,   a: .95 },
+    { k: .022, d: .92, hue: 18, w: 5.5, a: .75 },
+    { k: .017, d: .93, hue: 352, w: 4.2, a: .55 },
   ].map(r => ({ ...r, h: { x: 0, y: 0, vx: 0, vy: 0 }, hist: [] }));
   const resize = () => {
     const dpr = Math.min(devicePixelRatio || 1, 2);
@@ -148,25 +148,29 @@ if (FINE && !RM) {
   };
   new ResizeObserver(resize).observe(hero); resize();
 
-  const hp = { x: 0, y: 0, on: false, last: 0 };
-  hero.addEventListener("pointermove", e => { const r = hero.getBoundingClientRect(); hp.x = e.clientX - r.left; hp.y = e.clientY - r.top; hp.on = true; hp.last = performance.now(); });
+  // The pointer only *leans* on the ribbons: their own drift keeps going and the pointer's
+  // pull (hp.w) fades in and out slowly, so nothing ever snaps to the cursor.
+  const hp = { x: 0, y: 0, on: false, last: 0, w: 0 };
+  hero.addEventListener("pointermove", e => { if (e.pointerType === "touch") return; const r = hero.getBoundingClientRect(); hp.x = e.clientX - r.left; hp.y = e.clientY - r.top; hp.on = true; hp.last = performance.now(); });
   hero.addEventListener("pointerleave", () => (hp.on = false));
-  hero.addEventListener("pointerdown", e => {   // click = burst
+  hero.addEventListener("pointerdown", e => {   // click = a gentle push
     const r = hero.getBoundingClientRect(), cx = e.clientX - r.left, cy = e.clientY - r.top;
-    R.forEach(rb => { const dx = rb.h.x - cx, dy = rb.h.y - cy, d = Math.hypot(dx, dy) + 1; rb.h.vx += dx / d * 26; rb.h.vy += dy / d * 26; });
+    R.forEach(rb => { const dx = rb.h.x - cx, dy = rb.h.y - cy, d = Math.hypot(dx, dy) + 1; rb.h.vx += dx / d * 5; rb.h.vy += dy / d * 5; });
   });
 
   function target(t, i) {
-    if (hp.on && performance.now() - hp.last < 2600)
-      return { x: hp.x + Math.sin(t * 1.7 + i * 2) * 26 * i, y: hp.y + Math.cos(t * 2.1 + i * 2) * 26 * i };
     const wide = W >= 900;                                  // keep idle motion clear of the headline
-    const cx = W * (wide ? .7 : .5), ax = W * (wide ? .2 : .34), ay = H * (wide ? .3 : .09);
-    return { x: cx + Math.sin(t * .55 + i * .5) * ax, y: H * (wide ? .44 : .2) + Math.sin(t * .83 + i * .5 + 1) * ay };
+    const cx = W * (wide ? .73 : .5), ax = W * (wide ? .17 : .34), ay = H * (wide ? .3 : .09);
+    const idle = { x: cx + Math.sin(t * .55 + i * .5) * ax, y: H * (wide ? .44 : .2) + Math.sin(t * .83 + i * .5 + 1) * ay };
+    if (hp.w < .001) return idle;
+    const k = hp.w * .45;                                   // pointer has at most ~45% say
+    return { x: lerp(idle.x, hp.x + Math.sin(t * .9 + i * 2) * 60 * i, k), y: lerp(idle.y, hp.y + Math.cos(t * 1.1 + i * 2) * 60 * i, k) };
   }
   function draw(t) {
     ctx.clearRect(0, 0, W, H);
     ctx.globalCompositeOperation = "lighter"; ctx.lineCap = "round"; ctx.lineJoin = "round";
     R.forEach((r, ri) => {
+      if (ri === 0) hp.w += (((hp.on && performance.now() - hp.last < 4000) ? 1 : 0) - hp.w) * .02;   // slow fade in / out
       const h = r.h, tg = target(t, ri);
       h.vx = (h.vx + (tg.x - h.x) * r.k) * r.d; h.vy = (h.vy + (tg.y - h.y) * r.k) * r.d;
       h.x += h.vx; h.y += h.vy;
@@ -181,9 +185,9 @@ if (FINE && !RM) {
         }
       }
       if (ri === 0) { // energy spark on the lead ribbon
-        const g = ctx.createRadialGradient(h.x, h.y, 0, h.x, h.y, 54);
-        g.addColorStop(0, "rgba(255,244,205,.95)"); g.addColorStop(.2, "rgba(255,190,80,.5)"); g.addColorStop(1, "rgba(255,106,61,0)");
-        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(h.x, h.y, 54, 0, 6.283); ctx.fill();
+        const g = ctx.createRadialGradient(h.x, h.y, 0, h.x, h.y, 44);
+        g.addColorStop(0, "rgba(255,244,205,.8)"); g.addColorStop(.2, "rgba(255,190,80,.35)"); g.addColorStop(1, "rgba(255,106,61,0)");
+        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(h.x, h.y, 44, 0, 6.283); ctx.fill();
       }
     });
   }
@@ -201,7 +205,7 @@ if (FINE && !RM) {
 
   // kinetic "sun."
   const sw = $("#sunword"); splitChars(sw);
-  proximity(sw, { radius: 200, gain: .3, lift: .12, idle: .45 });
+  proximity(sw, { radius: 240, gain: .07, lift: .04, idle: .5 });
 
   // live card
   const kw = $("#liveKw"), line = $("#sparkLine"), fill = $("#sparkFill"), clock = $("#liveClock"), bat = $("#liveBat");
@@ -433,10 +437,10 @@ if (FINE && !RM) {
   // pointer tilt
   if (FINE && !RM) {
     let rx = 0, ry = 0, tx = 0, ty = 0, inside = false;
-    wrap.addEventListener("pointermove", e => { const r = wrap.getBoundingClientRect(); ty = ((e.clientX - r.left) / r.width - .5) * 8; tx = -((e.clientY - r.top) / r.height - .5) * 6; inside = true; });
+    wrap.addEventListener("pointermove", e => { const r = wrap.getBoundingClientRect(); ty = ((e.clientX - r.left) / r.width - .5) * 3; tx = -((e.clientY - r.top) / r.height - .5) * 2.4; inside = true; });
     wrap.addEventListener("pointerleave", () => { tx = ty = 0; inside = false; });
     const vis = visible(wrap, "0px");
-    onFrame(() => { if (!vis.on) return; rx += (tx - rx) * .08; ry += (ty - ry) * .08; panel.style.transform = `rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg)`; });
+    onFrame(() => { if (!vis.on) return; rx += (tx - rx) * .04; ry += (ty - ry) * .04; panel.style.transform = `rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg)`; });
   }
 
   // state
@@ -561,7 +565,7 @@ if (FINE && !RM) {
     let px = x + (-dy / l) * w, py = y + (dx / l) * w;
     if (ptr.on) {           // pointer nudges particles like a fluid
       const r = stage.getBoundingClientRect(), mx = ptr.x - r.left, my = ptr.y - r.top, ddx = px - mx, ddy = py - my, d = Math.hypot(ddx, ddy);
-      if (d < 90 && d > 0) { const f = (1 - d / 90) ** 2 * 26; px += ddx / d * f; py += ddy / d * f; }
+      if (d < 80 && d > 0) { const f = (1 - d / 80) ** 2 * 9; px += ddx / d * f; py += ddy / d * f; }
     }
     return [px, py];
   };
@@ -648,8 +652,8 @@ if (FINE && !RM) {
   const big = $("#bigType");
   $$(".l", big).forEach(l => { splitChars(l, l.dataset.text); });
   const lines = $$(".l", big);
-  proximity(lines[0], { radius: 300, gain: .12, lift: .06, idle: .2, color: [255, 178, 62], base: [244, 239, 230] });
-  proximity(lines[1], { radius: 300, gain: .1, lift: .06, idle: .25, color: [255, 240, 190], base: [255, 178, 62] });
+  proximity(lines[0], { radius: 320, gain: .04, lift: .025, idle: .3, color: [255, 200, 110], base: [244, 239, 230] });
+  proximity(lines[1], { radius: 320, gain: .035, lift: .025, idle: .35, color: [255, 240, 190], base: [255, 178, 62] });
 
   const hz = $("#horizon"), sec = $("#get");
   onFrame(() => {

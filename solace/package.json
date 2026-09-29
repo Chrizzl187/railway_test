@@ -1,0 +1,12 @@
+{
+  "name": "solace-site",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Solace — motion design showcase (static site, zero dependencies)",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

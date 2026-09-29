@@ -1,0 +1,12 @@
+{
+  "name": "benchmark",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Deploy entry point: serves the Solace site from ./solace",
+  "scripts": {
+    "start": "node solace/server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
