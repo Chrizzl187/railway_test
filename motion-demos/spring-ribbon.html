@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Spring Ribbon</title>
+<style>
+  html,body { margin:0; height:100%; background:#08090f; overflow:hidden; touch-action:none; }
+  canvas { display:block; width:100%; height:100%; }
+  a.back { position:fixed; top:16px; left:20px; color:#fff; opacity:.5; font:500 13px/1 ui-monospace,monospace; text-decoration:none; z-index:5; }
+  a.back:hover { opacity:1; }
+  .hint { position:fixed; bottom:20px; left:0; right:0; text-align:center; color:#fff; opacity:.45; font:500 13px/1 ui-monospace,monospace; pointer-events:none; transition:opacity 1s; }
+  .hint.gone { opacity:0; }
+</style>
+</head>
+<body>
+<a class="back" href="index.html">← all demos</a>
+<canvas id="c"></canvas>
+<div class="hint" id="hint">move your pointer · click for a pulse</div>
+<script>
+/* Chain of points; each is pulled to the previous one by a damped spring.
+   Head follows the pointer (or a Lissajous path when idle). */
+const cv = document.getElementById("c"), ctx = cv.getContext("2d");
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+let W, H, dpr;
+const resize = () => {
+  dpr = Math.min(devicePixelRatio || 1, 2);
+  W = innerWidth; H = innerHeight;
+  cv.width = W * dpr; cv.height = H * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+};
+addEventListener("resize", resize); resize();
+
+const RIBBONS = 3, N = 46;
+const ribbons = Array.from({ length: RIBBONS }, (_, r) => ({
+  k: 0.16 - r * 0.02,          // stiffness
+  damp: 0.78 + r * 0.03,       // damping
+  hue: 180 + r * 60,
+  pts: Array.from({ length: N }, () => ({ x: W / 2, y: H / 2, vx: 0, vy: 0 })),
+}));
+
+const pointer = { x: W / 2, y: H / 2, active: false, last: 0 };
+addEventListener("pointermove", e => {
+  pointer.x = e.clientX; pointer.y = e.clientY; pointer.active = true; pointer.last = performance.now();
+  document.getElementById("hint").classList.add("gone");
+});
+
+const pulses = [];
+addEventListener("pointerdown", e => {
+  pulses.push({ x: e.clientX, y: e.clientY, t: 0 });
+  // kick every point radially away from the click
+  ribbons.forEach(r => r.pts.forEach(p => {
+    const dx = p.x - e.clientX, dy = p.y - e.clientY, d = Math.hypot(dx, dy) + 1;
+    const f = Math.max(0, 1 - d / 500) * 30;
+    p.vx += dx / d * f; p.vy += dy / d * f;
+  }));
+});
+
+function target(t, r) {
+  if (pointer.active && performance.now() - pointer.last < 2500) {
+    return { x: pointer.x + Math.sin(t * 2 + r) * 14 * r, y: pointer.y + Math.cos(t * 2.3 + r) * 14 * r };
+  }
+  const s = Math.min(W, H) * 0.32;
+  return { x: W / 2 + Math.sin(t * 0.9 + r * 0.6) * s * 1.4, y: H / 2 + Math.sin(t * 1.3 + r * 0.6 + 1) * s };
+}
+
+let t0 = performance.now();
+function frame(now) {
+  const t = (now - t0) / 1000;
+  ctx.globalCompositeOperation = "source-over";
+  ctx.fillStyle = "rgba(8,9,15,.22)";     // trailing fade
+  ctx.fillRect(0, 0, W, H);
+  ctx.globalCompositeOperation = "lighter";
+  ctx.lineCap = "round";
+
+  ribbons.forEach((r, ri) => {
+    const head = r.pts[0], tg = target(t, ri);
+    head.vx = (head.vx + (tg.x - head.x) * r.k * 1.4) * r.damp;
+    head.vy = (head.vy + (tg.y - head.y) * r.k * 1.4) * r.damp;
+    head.x += head.vx; head.y += head.vy;
+    for (let i = 1; i < N; i++) {
+      const p = r.pts[i], q = r.pts[i - 1];
+      p.vx = (p.vx + (q.x - p.x) * r.k) * r.damp;
+      p.vy = (p.vy + (q.y - p.y) * r.k) * r.damp;
+      p.x += p.vx; p.y += p.vy;
+    }
+    for (let i = 1; i < N; i++) {
+      const a = r.pts[i - 1], b = r.pts[i], k = 1 - i / N;
+      ctx.strokeStyle = `hsla(${r.hue + i * 2 + t * 20},95%,${55 + k * 20}%,${0.15 + k * 0.7})`;
+      ctx.lineWidth = 1 + k * 14;
+      ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+    }
+  });
+
+  for (let i = pulses.length - 1; i >= 0; i--) {
+    const p = pulses[i]; p.t += 0.02;
+    if (p.t >= 1) { pulses.splice(i, 1); continue; }
+    const e = 1 - Math.pow(1 - p.t, 3);
+    ctx.strokeStyle = `rgba(255,255,255,${(1 - p.t) * 0.6})`;
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(p.x, p.y, e * 220, 0, Math.PI * 2); ctx.stroke();
+  }
+  requestAnimationFrame(frame);
+}
+if (reduce) { ctx.fillStyle = "#08090f"; ctx.fillRect(0, 0, W, H); }
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

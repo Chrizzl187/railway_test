@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Solace — a home that moves with the sun</title>
+<meta name="description" content="Solace pairs rooftop solar with a smart battery that plans around weather, tariffs and your day. (Fictional product — a motion design demo.)">
+<meta name="theme-color" content="#080b16">
+<script>document.documentElement.classList.add("js");</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- shared SVG symbols -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 2 5 14h6l-1 8 8-12h-6z"/></symbol>
+    <symbol id="i-flame" viewBox="0 0 24 24"><path d="M12 3c1 4 5 5 5 10a5 5 0 0 1-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-3-1-5 1-9z"/></symbol>
+    <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></symbol>
+    <symbol id="i-battery" viewBox="0 0 24 24"><rect x="3" y="7" width="16" height="10" rx="2.5"/><path d="M22 10.5v3M7 12h4"/></symbol>
+    <symbol id="i-grid" viewBox="0 0 24 24"><path d="M12 2 6 22M12 2l6 20M8.2 9h7.6M7 15.5h10M9 9l6 6.5M15 9l-6 6.5"/></symbol>
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></symbol>
+    <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 18a4.5 4.5 0 0 1-.6-8.96A6 6 0 0 1 18 10.5 3.75 3.75 0 0 1 17.5 18z"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 4.5 6v5.5c0 4.5 3 8 7.5 9.5 4.5-1.5 7.5-5 7.5-9.5V6z"/><path d="m9 12 2.2 2.2L15.5 10"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-tap" viewBox="0 0 24 24"><path d="M9 11V5a2 2 0 0 1 4 0v5.5l4.2.9a2 2 0 0 1 1.5 2.2L18 19a2 2 0 0 1-2 1.7H11a2 2 0 0 1-1.6-.8L5.5 14.6a1.6 1.6 0 0 1 2.4-2L9 13.6"/></symbol>
+  </defs>
+</svg>
+
+<!-- ============================ NAV ============================ -->
+<header class="nav" id="nav">
+  <a class="logo" href="#top" aria-label="Solace home">
+    <svg class="sunmark" viewBox="0 0 28 28" aria-hidden="true">
+      <circle cx="14" cy="14" r="6" fill="currentColor"/>
+      <g class="rays" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <path d="M14 1.5v3M14 23.5v3M1.5 14h3M23.5 14h3M5.2 5.2l2.1 2.1M20.7 20.7l2.1 2.1M5.2 22.8l2.1-2.1M20.7 7.3l2.1-2.1"/>
+      </g>
+    </svg>
+    Solace
+  </a>
+  <nav aria-label="Primary">
+    <a href="#day">A day with Solace</a>
+    <a href="#control">The app</a>
+    <a href="#flow">Live flow</a>
+  </nav>
+  <a class="btn sm magnetic" href="#get"><span>Get a quote</span></a>
+</header>
+
+<main id="top">
+<!-- ============================ HERO ============================ -->
+<section class="hero" id="hero">
+  <canvas id="ribbons" aria-hidden="true"></canvas>
+  <div class="grain"></div>
+  <div class="hero-inner" id="heroInner">
+    <div>
+      <p class="eyebrow fade" style="--i:0">Home solar + battery · installing in 14 states</p>
+      <h1 class="display" aria-label="Your home, in step with the sun.">
+        <span class="line" aria-hidden="true" style="--i:0"><span class="in">Your home,</span></span>
+        <span class="line" aria-hidden="true" style="--i:1"><span class="in">in step with</span></span>
+        <span class="line" aria-hidden="true" style="--i:2"><span class="in">the <em id="sunword">sun.</em></span></span>
+      </h1>
+      <p class="sub fade" style="--i:2">Solace pairs rooftop solar with a battery that plans around the weather, the tariff and your day. You just live in it.</p>
+      <div class="cta fade" style="--i:3">
+        <a class="btn magnetic" href="#get"><span>Get a free roof scan <svg class="arr" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 8h11M9 3.5 13.5 8 9 12.5"/></svg></span></a>
+        <a class="btn ghost magnetic" href="#day"><span>See a day in 20 seconds</span></a>
+      </div>
+    </div>
+
+    <aside class="live glass fade" style="--i:4" aria-label="Live example system">
+      <div class="top"><span><i class="dot"></i>Live · Tucson, AZ</span><span id="liveClock">--:--</span></div>
+      <div class="big"><span id="liveKw">4.2</span><small>kW</small></div>
+      <div class="lbl">flowing from one roof, right now</div>
+      <svg viewBox="0 0 260 56" preserveAspectRatio="none" aria-hidden="true">
+        <defs><linearGradient id="sparkGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffb23e" stop-opacity=".35"/><stop offset="1" stop-color="#ffb23e" stop-opacity="0"/></linearGradient></defs>
+        <path class="spark-fill" id="sparkFill" d=""/>
+        <path class="spark-line" id="sparkLine" d=""/>
+      </svg>
+      <div class="row"><span>Battery</span><b id="liveBat">87%</b></div>
+    </aside>
+  </div>
+  <div class="scrollcue" aria-hidden="true"></div>
+</section>
+
+<!-- ============================ MARQUEE ============================ -->
+<div class="marquee" aria-hidden="true" id="marquee">
+  <div class="mrow" data-dir="-1"><span>Rooftop solar</span><span>Smart battery</span><span>EV charging</span><span>Storm backup</span><span>Rooftop solar</span><span>Smart battery</span><span>EV charging</span><span>Storm backup</span></div>
+  <div class="mrow o" data-dir="1"><span>Sells the surplus</span><span>Reads the forecast</span><span>Learns your routine</span><span>Sells the surplus</span><span>Reads the forecast</span><span>Learns your routine</span></div>
+</div>
+
+<!-- ============================ DAY STORY ============================ -->
+<section class="story" id="day" aria-label="A day with Solace">
+  <div class="stage" id="stage">
+    <div class="sky"></div>
+    <div class="stars" id="stars"></div>
+    <div class="moon"></div>
+    <div class="glow"></div>
+    <div class="sun" id="sun"></div>
+    <div class="cloud" style="top:20%;width:220px;animation-duration:110s;animation-delay:-40s"></div>
+    <div class="cloud" style="top:32%;width:160px;animation-duration:150s;animation-delay:-100s;opacity:.7"></div>
+    <div class="cloud" style="top:12%;width:280px;animation-duration:190s;animation-delay:-10s;opacity:.6"></div>
+
+    <div class="hill-a" id="hill1"><svg viewBox="0 0 1440 300" preserveAspectRatio="none" style="height:40vh"><path style="fill:var(--h1)" d="M0 150 C180 70 340 120 520 96 S900 30 1140 90 1350 130 1440 90 V300 H0Z"/></svg></div>
+    <div class="hill-a" id="hill2"><svg viewBox="0 0 1440 300" preserveAspectRatio="none" style="height:29vh"><path style="fill:var(--h2)" d="M0 120 C220 40 380 140 640 100 S1040 40 1260 110 1400 90 1440 80 V300 H0Z"/></svg></div>
+
+    <div class="house" id="house">
+      <svg viewBox="0 0 400 250" aria-hidden="true">
+        <ellipse cx="190" cy="236" rx="190" ry="10" fill="#00000040"/>
+        <!-- body -->
+        <rect x="72" y="120" width="230" height="114" rx="4" style="fill:var(--house,#eadfcf)"/>
+        <rect x="72" y="120" width="230" height="6" fill="#00000018"/>
+        <!-- roof -->
+        <polygon points="46,124 112,54 336,54 306,124" style="fill:var(--roof,#3a3f5c)"/>
+        <g id="cells"></g>
+        <!-- windows -->
+        <g>
+          <rect class="win" x="92" y="146" width="42" height="48" rx="3"/><rect class="wglow" x="92" y="146" width="42" height="48" rx="3"/>
+          <rect class="win" x="148" y="146" width="42" height="48" rx="3"/><rect class="wglow" x="148" y="146" width="42" height="48" rx="3"/>
+          <rect class="win" x="246" y="146" width="42" height="48" rx="3"/><rect class="wglow" x="246" y="146" width="42" height="48" rx="3"/>
+          <path d="M113 146v48M169 146v48M267 146v48M92 170h42M148 170h42M246 170h42" stroke="#0000003a" stroke-width="2"/>
+        </g>
+        <rect x="204" y="166" width="32" height="68" rx="3" style="fill:var(--door,#c96a3c)"/>
+        <circle cx="230" cy="202" r="2" fill="#ffe7b0"/>
+        <!-- battery unit -->
+        <rect x="312" y="168" width="34" height="66" rx="6" fill="#f7f4ee"/>
+        <rect x="312" y="168" width="34" height="66" rx="6" fill="none" stroke="#00000033"/>
+        <rect x="319" y="176" width="20" height="4" rx="2" class="ev-led" id="batLed"/>
+        <rect x="319" y="186" width="20" height="40" rx="3" fill="#00000012"/>
+        <rect id="batFill" x="319" y="226" width="20" height="0" rx="3" fill="var(--mint)"/>
+      </svg>
+    </div>
+
+    <div class="hill-a" id="hill3"><svg viewBox="0 0 1440 300" preserveAspectRatio="none" style="height:15vh"><path style="fill:var(--h3)" d="M0 100 C200 40 420 130 700 90 S1120 30 1440 100 V300 H0Z"/></svg></div>
+
+    <div class="captions glass" id="captions" aria-live="polite">
+      <!-- steps generated from data in main.js -->
+    </div>
+
+    <aside class="hud glass" aria-label="Live system readout">
+      <div class="clock"><b id="hudClock">05:00</b><span>Local time</span></div>
+      <div class="meter" style="--c:var(--sun)"><span>Solar</span><b id="hudSolar">0.0 kW</b><div class="bar"><i id="barSolar"></i></div></div>
+      <div class="meter" style="--c:var(--violet)"><span>Home</span><b id="hudHome">0.0 kW</b><div class="bar"><i id="barHome"></i></div></div>
+      <div class="meter" style="--c:var(--mint)"><span>Battery</span><b id="hudBat">0%</b><div class="bar"><i id="barBat"></i></div></div>
+      <div class="meter saved"><span>Saved today</span><b id="hudSaved">$0.00</b></div>
+    </aside>
+
+    <div class="timeline glass" id="timeline" role="tablist" aria-label="Jump to a time of day">
+      <span class="clockpill" id="tlClock">05:00</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ CONTROL ============================ -->
+<section class="control" id="control">
+  <div class="wrap two">
+    <div>
+      <p class="eyebrow" data-reveal>The Solace app</p>
+      <h2 class="h2" style="margin-top:22px" data-reveal data-d="1">Everything answers to <em>a tap.</em></h2>
+      <p class="lead" data-reveal data-d="2">Try it — this panel is live. Flip a device, change the mode, or hold Storm mode to lock the battery for an outage.</p>
+      <ul class="bullets">
+        <li data-reveal data-d="3"><span class="ic"><svg><use href="#i-clock"/></svg></span><div><b>Plans around your day</b><span>Learns when you cook, charge and sleep, then schedules around it.</span></div></li>
+        <li data-reveal data-d="4"><span class="ic"><svg><use href="#i-shield"/></svg></span><div><b>Storm-ready in a second</b><span>Reserve the battery before the grid drops, not after.</span></div></li>
+        <li data-reveal data-d="5"><span class="ic"><svg><use href="#i-tap"/></svg></span><div><b>One tap, whole house</b><span>Modes re-balance every device so you never manage watts by hand.</span></div></li>
+      </ul>
+    </div>
+
+    <div class="phone-wrap" id="phoneWrap" data-reveal data-d="2">
+      <div class="panel" id="panel">
+        <div class="panel-head">
+          <div class="place"><b>14 Orchard Lane</b><span id="syncLabel">Synced just now</span></div>
+          <div class="tools">
+            <button class="iconbtn sync" id="sync" data-state="idle" aria-label="Sync now">
+              <svg viewBox="0 0 24 24">
+                <g class="idle"><path d="M20 12a8 8 0 0 1-13.7 5.6M4 12a8 8 0 0 1 13.7-5.6"/><path d="M18 3v4h-4M6 21v-4h4"/></g>
+                <g class="orb"><circle cx="12" cy="4" r="2"/><circle cx="20" cy="12" r="2"/><circle cx="12" cy="20" r="2"/><circle cx="4" cy="12" r="2"/></g>
+                <g class="tick"><path d="m6 12.5 4 4 8-9"/></g>
+              </svg>
+            </button>
+            <button class="iconbtn theme" id="theme" aria-pressed="false" aria-label="Toggle dark panel">
+              <svg viewBox="0 0 24 24">
+                <defs><mask id="moonmask" maskUnits="userSpaceOnUse" x="-10" y="-10" width="44" height="44"><rect x="-10" y="-10" width="44" height="44" fill="#fff"/><circle class="bite" cx="24" cy="6" r="7" fill="#000"/></mask></defs>
+                <g class="rays"><path d="M12 1.5v2.5M12 20v2.5M1.5 12H4M20 12h2.5M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M4.6 19.4l1.8-1.8M17.6 6.4l1.8-1.8"/></g>
+                <circle class="core" cx="12" cy="12" r="5" mask="url(#moonmask)"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="usage">
+          <div><div class="lbl">Using now</div><div class="num"><span id="useNum">2.4</span><small>kW</small></div></div>
+          <div class="ring"><svg viewBox="0 0 74 74"><circle class="bg" cx="37" cy="37" r="32"/><circle class="fg" id="ringFg" cx="37" cy="37" r="32"/></svg><b id="ringNum">62%</b><small id="ringLbl">Battery</small></div>
+        </div>
+        <div class="loadbar" aria-hidden="true"><i id="loadFill"></i></div>
+
+        <div class="seg" id="seg" role="radiogroup" aria-label="Energy mode" style="--i:1">
+          <span class="thumb"></span>
+          <button role="radio" aria-checked="false" data-i="0">Eco</button>
+          <button role="radio" aria-checked="true" data-i="1">Balanced</button>
+          <button role="radio" aria-checked="false" data-i="2">Backup</button>
+        </div>
+        <p class="modedesc" id="modeDesc">Sun first, grid second. Big loads move to the cheapest hours.</p>
+
+        <div class="devices">
+          <div class="dev" data-kw="7.2" data-on="Charging · 7.2 kW" data-off="Off · scheduled 11 am">
+            <span class="di"><svg><use href="#i-bolt"/></svg></span><div><b>EV charger</b><small>Off · scheduled 11 am</small></div>
+            <input class="tg" type="checkbox" role="switch" aria-label="EV charger">
+          </div>
+          <div class="dev on" data-kw="1.8" data-on="Heating · 1.8 kW" data-off="Off">
+            <span class="di"><svg><use href="#i-flame"/></svg></span><div><b>Heat pump</b><small>Heating · 1.8 kW</small></div>
+            <input class="tg" type="checkbox" role="switch" aria-label="Heat pump" checked>
+          </div>
+          <div class="dev" data-kw="0.9" data-on="Running · 0.9 kW" data-off="Off · runs at noon">
+            <span class="di"><svg><use href="#i-drop"/></svg></span><div><b>Pool pump</b><small>Off · runs at noon</small></div>
+            <input class="tg" type="checkbox" role="switch" aria-label="Pool pump">
+          </div>
+        </div>
+
+        <button class="storm" id="storm" aria-pressed="false">
+          <span class="lab"><span id="stormTitle">Hold to enable Storm mode</span><small id="stormSub">Reserves 100% battery for an outage</small></span>
+          <span class="si"><svg><use class="bolt" href="#i-bolt"/><path class="ck" d="m6 12.5 4 4 8-9"/></svg></span>
+        </button>
+
+        <div class="toasts" id="toasts" aria-live="polite"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ FLOW ============================ -->
+<section class="flow" id="flow">
+  <div class="wrap two">
+    <div>
+      <p class="eyebrow" data-reveal>Live flow</p>
+      <h2 class="h2" style="margin-top:22px" data-reveal data-d="1">See every <em>watt.</em></h2>
+      <p class="lead" data-reveal data-d="2">Solace routes energy every few seconds. Pick a moment and watch where each kilowatt goes.</p>
+      <div class="tabs" id="tabs" role="tablist" aria-label="Scenario" data-reveal data-d="3">
+        <span class="pill"></span>
+        <button role="tab" aria-selected="true" data-s="midday">Midday</button>
+        <button role="tab" aria-selected="false" data-s="evening">Evening</button>
+        <button role="tab" aria-selected="false" data-s="cloudy">Cloudy</button>
+        <button role="tab" aria-selected="false" data-s="outage">Outage</button>
+      </div>
+      <p class="scenario" id="scenario"></p>
+    </div>
+
+    <div>
+      <div class="fstage" id="fstage" data-reveal data-d="1">
+        <canvas id="flowCanvas" aria-hidden="true"></canvas>
+        <div class="node" id="nSolar" style="--c:var(--sun);left:16%;top:24%"><div class="orb"><svg><use href="#i-sun"/></svg></div><label><b id="vSolar">0.0 kW</b><span>Solar</span></label></div>
+        <div class="node" id="nGrid" style="--c:var(--violet);left:84%;top:24%"><div class="orb"><svg><use href="#i-grid"/></svg><i class="badge">OFFLINE</i></div><label><b id="vGrid">0.0 kW</b><span id="lGrid">Grid</span></label></div>
+        <div class="node hub" id="nHome" style="--c:#f4efe6;left:50%;top:50%"><div class="orb"><svg><use href="#i-home"/></svg></div><label><b id="vHome">0.0 kW</b><span>Home</span></label></div>
+        <div class="node" id="nBat" style="--c:var(--mint);left:50%;top:82%"><div class="orb"><svg><use href="#i-battery"/></svg></div><label><b id="vBat">0.0 kW</b><span id="lBat">Battery</span></label></div>
+      </div>
+      <div class="readouts" id="readouts" data-reveal data-d="2">
+        <div class="ro"><span><i style="--c:var(--sun)"></i>Produced</span><b id="rProd">0.0<small>kW</small></b><em id="rProdN"></em></div>
+        <div class="ro"><span><i style="--c:#f4efe6"></i>Consumed</span><b id="rCons">0.0<small>kW</small></b><em id="rConsN"></em></div>
+        <div class="ro"><span><i style="--c:var(--mint)"></i>Battery</span><b id="rBat">0.0<small>kW</small></b><em id="rBatN"></em></div>
+        <div class="ro"><span><i style="--c:var(--violet)"></i>Grid</span><b id="rGrid">0.0<small>kW</small></b><em id="rGridN"></em></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ CLOSING ============================ -->
+<section class="closing" id="get">
+  <div class="horizon" id="horizon"></div>
+  <div class="grain"></div>
+  <div class="wrap">
+    <p class="eyebrow" style="justify-content:center" data-reveal>Free roof scan · no obligation</p>
+    <h2 class="big-type" id="bigType" aria-label="Follow the sun.">
+      <span class="l" data-text="Follow the"></span>
+      <span class="l serif" data-text="sun."></span>
+    </h2>
+    <p class="lead" data-reveal>Leave your email and we'll model your roof, your bills and your sky within one working day.</p>
+    <form class="signup" id="signup" data-state="idle" novalidate data-reveal data-d="1">
+      <input type="email" id="email" placeholder="you@home.com" aria-label="Email address" autocomplete="email" required>
+      <button class="btn magnetic" type="submit"><span class="lab">Get my scan</span><i class="spin"></i><svg class="okk" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7"/></svg></button>
+    </form>
+    <p class="formnote" id="formNote" aria-live="polite"></p>
+    <footer>
+      <span>© 2026 Solace Energy, Inc. — a fictional product built as a motion design demo.</span>
+      <span>Scroll · hover · tap. Everything here is hand-built: no libraries.</span>
+    </footer>
+  </div>
+</section>
+</main>
+
+<script src="main.js"></script>
+</body>
+</html>

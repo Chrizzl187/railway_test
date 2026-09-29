@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Flow Field</title>
+<style>
+  html,body { margin:0; height:100%; background:#0b0a10; overflow:hidden; }
+  canvas { display:block; width:100%; height:100%; }
+  a.back { position:fixed; top:16px; left:20px; color:#fff; opacity:.5; font:500 13px/1 ui-monospace,monospace; text-decoration:none; z-index:5; }
+  a.back:hover { opacity:1; }
+  .ui { position:fixed; bottom:18px; left:50%; transform:translateX(-50%); display:flex; gap:8px; font:500 12px ui-monospace,monospace; }
+  .ui button { background:#ffffff14; color:#fff; border:1px solid #ffffff30; border-radius:99px; padding:8px 14px; cursor:pointer; backdrop-filter:blur(8px); transition:background .2s, transform .2s; }
+  .ui button:hover { background:#ffffff28; transform:translateY(-2px); }
+</style>
+</head>
+<body>
+<a class="back" href="index.html">← all demos</a>
+<canvas id="c"></canvas>
+<div class="ui"><button data-p="0">aurora</button><button data-p="1">ember</button><button data-p="2">ocean</button><button id="reseed">reseed</button></div>
+<script>
+/* Particles follow angles from a smoothly evolving value-noise field.
+   The pointer bends the field around itself. */
+const cv = document.getElementById("c"), ctx = cv.getContext("2d");
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+let W, H, dpr;
+const resize = () => { dpr = Math.min(devicePixelRatio || 1, 2); W = innerWidth; H = innerHeight; cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.fillStyle = "#0b0a10"; ctx.fillRect(0, 0, W, H); };
+addEventListener("resize", resize); resize();
+
+// --- 3D value noise (x, y, time) ---
+let perm;
+const seed = () => { perm = new Float32Array(1024).map(Math.random); };
+seed();
+const h = (x, y, z) => perm[(((x * 73856093) ^ (y * 19349663) ^ (z * 83492791)) >>> 0) & 1023];
+const sm = t => t * t * (3 - 2 * t);
+const lerp = (a, b, t) => a + (b - a) * t;
+function noise(x, y, z) {
+  const xi = Math.floor(x), yi = Math.floor(y), zi = Math.floor(z);
+  const xf = sm(x - xi), yf = sm(y - yi), zf = sm(z - zi);
+  const l = (dz) => lerp(lerp(h(xi, yi, zi + dz), h(xi + 1, yi, zi + dz), xf), lerp(h(xi, yi + 1, zi + dz), h(xi + 1, yi + 1, zi + dz), xf), yf);
+  return lerp(l(0), l(1), zf);
+}
+
+const palettes = [
+  t => `hsla(${150 + t * 140},90%,${55 + t * 15}%,.55)`,   // aurora
+  t => `hsla(${10 + t * 45},95%,${50 + t * 20}%,.55)`,     // ember
+  t => `hsla(${190 + t * 60},85%,${50 + t * 20}%,.55)`,    // ocean
+];
+let pal = 0;
+document.querySelectorAll("[data-p]").forEach(b => b.onclick = () => { pal = +b.dataset.p; });
+document.getElementById("reseed").onclick = () => { seed(); ctx.fillStyle = "#0b0a10"; ctx.fillRect(0, 0, W, H); };
+
+const COUNT = Math.min(2200, Math.floor(innerWidth * innerHeight / 700));
+const P = Array.from({ length: COUNT }, () => ({ x: Math.random() * W, y: Math.random() * H, life: Math.random() * 200 }));
+const mouse = { x: -1e4, y: -1e4 };
+addEventListener("pointermove", e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+addEventListener("pointerleave", () => { mouse.x = mouse.y = -1e4; });
+
+const SCALE = 0.0022;
+let t = 0;
+function frame() {
+  t += 0.0022;
+  ctx.fillStyle = "rgba(11,10,16,.06)";
+  ctx.fillRect(0, 0, W, H);
+  ctx.lineWidth = 1.2;
+  for (const p of P) {
+    const n = noise(p.x * SCALE, p.y * SCALE, t);
+    let a = n * Math.PI * 4;
+    // pointer swirl
+    const dx = p.x - mouse.x, dy = p.y - mouse.y, d2 = dx * dx + dy * dy;
+    if (d2 < 22000) a = Math.atan2(dy, dx) + Math.PI / 2;   // orbit tangent around the pointer
+    const vx = Math.cos(a) * 1.4, vy = Math.sin(a) * 1.4;
+    ctx.strokeStyle = palettes[pal](n);
+    ctx.beginPath(); ctx.moveTo(p.x, p.y);
+    p.x += vx; p.y += vy;
+    ctx.lineTo(p.x, p.y); ctx.stroke();
+    if (--p.life < 0 || p.x < 0 || p.x > W || p.y < 0 || p.y > H) {
+      p.x = Math.random() * W; p.y = Math.random() * H; p.life = 150 + Math.random() * 250;
+    }
+  }
+  if (!reduce) requestAnimationFrame(frame);
+}
+if (reduce) { for (let i = 0; i < 300; i++) frame(); } else frame();
+</script>
+</body>
+</html>
